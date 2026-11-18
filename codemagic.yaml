@@ -16,6 +16,7 @@ workflows:
       - name: Install dependencies
         script: |
           npm install
+          npm install typescript
       - name: Add iOS platform
         script: |
           npx cap add ios
