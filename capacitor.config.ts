@@ -1,6 +1,6 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
 
-const config: CapacitorConfig = {
+const type config: CapacitorConfig = {
   appId: 'com.munfordvillesports.app',
   appName: 'Munfordville Sports',
   webDir: 'www',
