@@ -54,7 +54,7 @@ workflows:
           PLIST
       - name: Build iOS archive
         script: |
-          xcodebuild -workspace "$XCODE_WORKSPACE" \
+          xcodebuild -project ios/App/App.xcodeproj \
             -scheme "$XCODE_SCHEME" \
             -configuration Release \
             -archivePath ios/App.xcarchive \
