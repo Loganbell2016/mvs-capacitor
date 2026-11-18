@@ -40,7 +40,7 @@ workflows:
             <key>uploadBitcode</key>
             <false/>
             <key>uploadSymbols</key>
-        h    <true/>
+            <true/>
           </dict>
           </plist>
           PLIST
