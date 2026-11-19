@@ -13,12 +13,14 @@ xcrun simctl boot $UDID
 xcrun simctl bootstatus $UDID -b > /dev/null
 xcrun simctl install $UDID $APP
 SUMMARY=''
+FIXES=(x none none resize reload load)
 for n in 1 2 3 4 5; do
-xcrun simctl launch $UDID com.munfordvillesports.app > /dev/null
+F=${FIXES[$n]}; [ "$F" = none ] && F=""
+SIMCTL_CHILD_MVS_FIX="$F" xcrun simctl launch --stderr=$OUT/err$n.txt $UDID com.munfordvillesports.app > /dev/null
 sleep 20
 xcrun simctl io $UDID screenshot $OUT/l$n.png > /dev/null 2>&1
 sips -Z 360 -s format jpeg -s formatOptions 45 $OUT/l$n.png --out $OUT/l$n.jpg > /dev/null
-FR=$(xcrun simctl spawn $UDID log show --last 22s --style compact --predicate 'subsystem == "com.apple.WebKit"' 2>/dev/null | grep -oE '(freeze|unfreeze)LayerTree: [A-Za-z ]+ \(reason=[0-9]+' | sed -E 's/.*(freeze|unfreeze)LayerTree.*reason=([0-9]+)/\1:\2/' | tr '\n' ' ')
+FR=$(xcrun simctl spawn $UDID log show --last 22s --style compact --predicate 'subsystem == "com.apple.WebKit"' 2>/dev/null | grep -oE 'LayerTree: [A-Za-z]+[^(]{0,80}\(reason=[0-9]+' | sed -E 's/LayerTree: ([A-Za-z]+)[^(]*reason=([0-9]+)/\1:\2/' | tr '\n' ' ')
 SUMMARY="$SUMMARY | L$n bytes=$(wc -c < $OUT/l$n.jpg) $FR"
 xcrun simctl terminate $UDID com.munfordvillesports.app
 sleep 3
@@ -27,4 +29,5 @@ for n in 1 2 3 4 5; do echo B64l$n-START; base64 -b 100 -i $OUT/l$n.jpg; echo B6
 echo ===== RESULTS
 echo PATCH $PATCHCHECK
 echo $SUMMARY
+for n in 1 2 3 4 5; do echo "--- L$n fix=${FIXES[$n]}"; grep -a MVSLOG $OUT/err$n.txt | cut -c1-700; done
 exit 0
