@@ -17,7 +17,7 @@ xcrun simctl bootstatus $UDID -b > /dev/null
 xcrun simctl install $UDID $APP
 SUMMARY=''
 FIXES=(x none none none none none)
-CLEARS=(x none all all cookies cookies)
+CLEARS=(x none nocook nocook nocook nocook)
 OBS=(x 0 0 0 0 0)
 for n in 1 2 3 4 5; do
 F=${FIXES[$n]}; [ "$F" = none ] && F=""
