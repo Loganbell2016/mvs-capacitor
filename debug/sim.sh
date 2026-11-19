@@ -17,15 +17,15 @@ xcrun simctl bootstatus $UDID -b > /dev/null
 xcrun simctl install $UDID $APP
 SUMMARY=''
 FIXES=(x none none none none none)
-CLEARS=(x none none none none none)
-OBS=(x 0 0 0 1 0)
+CLEARS=(x none all all cookies cookies)
+OBS=(x 0 0 0 0 0)
 for n in 1 2 3 4 5; do
 F=${FIXES[$n]}; [ "$F" = none ] && F=""
 SIMCTL_CHILD_MVS_COOKIEOBS="${OBS[$n]}" SIMCTL_CHILD_MVS_CLEAR="${CLEARS[$n]}" SIMCTL_CHILD_MVS_FIX="$F" xcrun simctl launch --stderr=$OUT/err$n.txt $UDID com.munfordvillesports.app > /dev/null
-sleep 20
+sleep 28
 xcrun simctl io $UDID screenshot $OUT/l$n.png > /dev/null 2>&1
 sips -Z 360 -s format jpeg -s formatOptions 45 $OUT/l$n.png --out $OUT/l$n.jpg > /dev/null
-FR=$(xcrun simctl spawn $UDID log show --last 22s --style compact --predicate 'subsystem == "com.apple.WebKit"' 2>/dev/null | grep -oE 'LayerTree: [A-Za-z]+[^(]{0,80}\(reason=[0-9]+' | sed -E 's/LayerTree: ([A-Za-z]+)[^(]*[(]reason=([0-9]+)/\1:\2/' | tr '\n' ' ')
+FR=$(xcrun simctl spawn $UDID log show --last 30s --style compact --predicate 'subsystem == "com.apple.WebKit"' 2>/dev/null | grep -oE 'LayerTree: [A-Za-z]+[^(]{0,80}\(reason=[0-9]+' | sed -E 's/LayerTree: ([A-Za-z]+)[^(]*[(]reason=([0-9]+)/\1:\2/' | tr '\n' ' ')
 SUMMARY="$SUMMARY | L$n bytes=$(wc -c < $OUT/l$n.jpg) $FR"
 xcrun simctl terminate $UDID com.munfordvillesports.app
 sleep 3
