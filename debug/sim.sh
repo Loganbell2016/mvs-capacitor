@@ -17,9 +17,10 @@ xcrun simctl bootstatus $UDID -b > /dev/null
 xcrun simctl install $UDID $APP
 SUMMARY=''
 FIXES=(x none none none none none)
+CLEARS=(x none cache cache sw storage)
 for n in 1 2 3 4 5; do
 F=${FIXES[$n]}; [ "$F" = none ] && F=""
-SIMCTL_CHILD_MVS_FIX="$F" xcrun simctl launch --stderr=$OUT/err$n.txt $UDID com.munfordvillesports.app > /dev/null
+SIMCTL_CHILD_MVS_CLEAR="${CLEARS[$n]}" SIMCTL_CHILD_MVS_FIX="$F" xcrun simctl launch --stderr=$OUT/err$n.txt $UDID com.munfordvillesports.app > /dev/null
 sleep 20
 xcrun simctl io $UDID screenshot $OUT/l$n.png > /dev/null 2>&1
 sips -Z 360 -s format jpeg -s formatOptions 45 $OUT/l$n.png --out $OUT/l$n.jpg > /dev/null
