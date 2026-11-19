@@ -30,6 +30,14 @@ workflows:
           sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*/PRODUCT_BUNDLE_IDENTIFIER = com.munfordvillesports.app;/g" ios/App/App.xcodeproj/project.pbxproj
           sed -i '' "s/CURRENT_PROJECT_VERSION = .*/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" ios/App/App.xcodeproj/project.pbxproj
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" ios/App/App/Info.plist || true
+      - name: Apply MVS app fixes
+        script: |
+          cat ios-patch/MVSApp.swift >> ios/App/App/AppDelegate.swift
+          sed -i '' 's/rootViewController = CAPBridgeViewController()/rootViewController = MVSViewController()/' ios/App/App/SceneDelegate.swift
+          sed -i '' 's/customClass="CAPBridgeViewController" customModule="Capacitor"/customClass="MVSViewController" customModule="App" customModuleProvider="target"/' ios/App/App/Base.lproj/Main.storyboard
+          /usr/libexec/PlistBuddy -c "Delete :UIApplicationSceneManifest:UISceneConfigurations:UIWindowSceneSessionRoleApplication:0:UISceneStoryboardFile" ios/App/App/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Delete :UIMainStoryboardFile" ios/App/App/Info.plist || true
+          grep -c MVSViewController ios/App/App/SceneDelegate.swift
       - name: Fetch and use code signing files
         script: |
           xcode-project use-profiles
