@@ -12,10 +12,14 @@ xcrun simctl bootstatus $UDID -b > /dev/null
 xcrun simctl install $UDID $APP
 brew install ios-webkit-debug-proxy > /dev/null 2>&1
 brew tap facebook/fb > /dev/null 2>&1
-brew install idb-companion > /dev/null 2>&1
+brew install idb-companion 2>&1 | tail -3
 pip3 install fb-idb --break-system-packages > /dev/null 2>&1 || pip3 install fb-idb > /dev/null 2>&1
-idb_companion --udid $UDID > $OUT/comp.txt 2>&1 &
-sleep 8
+COMP=$(brew --prefix)/bin/idb_companion
+ls -la $COMP
+sudo mkdir -p /usr/local/bin
+sudo ln -sf $COMP /usr/local/bin/idb_companion
+$COMP --udid $UDID > $OUT/comp.txt 2>&1 &
+sleep 10
 idb connect localhost 10882
 SOCK=$(lsof -aUc launchd_sim 2>/dev/null | grep 'com.apple.webinspectord_sim.socket' | head -1 | awk '{print $NF}')
 ios_webkit_debug_proxy -s unix:$SOCK > $OUT/iwdp.txt 2>&1 &
@@ -23,19 +27,19 @@ sleep 5
 xcrun simctl launch $UDID com.munfordvillesports.app
 sleep 30
 node debug/listen.js arm
-idb ui describe-all --udid $UDID > $OUT/ax.json 2> $OUT/ax.err
-XY=$(python3 debug/tapxy.py 'Sign In' $OUT/ax.json)
-echo TAP AT $XY
-idb ui tap --udid $UDID $XY
+idb ui describe-all > $OUT/ax.json 2> $OUT/ax.err
+XY=$(python3 debug/tapxy.py 'Sign In' $OUT/ax.json 2> $OUT/labels.txt)
+idb ui tap $XY 2>&1 | tail -2
 sleep 10
 xcrun simctl io $UDID screenshot $OUT/b1.png
-node debug/listen.js read
 sips -Z 520 -s format jpeg -s formatOptions 50 $OUT/b1.png --out $OUT/b1.jpg > /dev/null
 echo B64b1-START
 base64 -b 100 -i $OUT/b1.jpg
 echo B64b1-END
 echo ===== RESULTS
-cat $OUT/ax.err | head -5
+tail -3 $OUT/comp.txt
+head -3 $OUT/ax.err
+cut -c1-700 $OUT/labels.txt
 echo TAP AT $XY
 node debug/listen.js read
 exit 0
