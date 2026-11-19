@@ -16,13 +16,21 @@ xcrun simctl boot $UDID
 xcrun simctl bootstatus $UDID -b > /dev/null
 xcrun simctl install $UDID $APP
 SUMMARY=''
+SAMPLES=''
 FIXES=(x none none none none none)
-CLEARS=(x none nocook nocook nocook nocook)
+CLEARS=(x none none none none none)
 OBS=(x 0 0 0 0 0)
 for n in 1 2 3 4 5; do
 F=${FIXES[$n]}; [ "$F" = none ] && F=""
 SIMCTL_CHILD_MVS_COOKIEOBS="${OBS[$n]}" SIMCTL_CHILD_MVS_CLEAR="${CLEARS[$n]}" SIMCTL_CHILD_MVS_FIX="$F" xcrun simctl launch --stderr=$OUT/err$n.txt $UDID com.munfordvillesports.app > /dev/null
-sleep 28
+sleep 14
+for P in $(pgrep -f 'com.apple.WebKit.WebContent|com.apple.WebKit.Networking'); do
+PN=$(ps -o comm= -p $P | sed 's/.*\.//')
+sample $P 2 -file $OUT/s$n-$P.txt > /dev/null 2>&1
+TOP=$(awk '/com.apple.main-thread/{f=1;next} f&&/^    [0-9]+ Thread_/{f=0} f' $OUT/s$n-$P.txt | head -45 | sed -E 's/^[ +!:|]*[0-9]+ //; s/ \(in [^)]*\).*//; s/  .*//' | cut -c1-60 | tr '\n' '>')
+SAMPLES="$SAMPLES\nL$n $PN($P): $TOP"
+done
+sleep 14
 xcrun simctl io $UDID screenshot $OUT/l$n.png > /dev/null 2>&1
 sips -Z 360 -s format jpeg -s formatOptions 45 $OUT/l$n.png --out $OUT/l$n.jpg > /dev/null
 FR=$(xcrun simctl spawn $UDID log show --last 30s --style compact --predicate 'subsystem == "com.apple.WebKit"' 2>/dev/null | grep -oE 'LayerTree: [A-Za-z]+[^(]{0,80}\(reason=[0-9]+' | sed -E 's/LayerTree: ([A-Za-z]+)[^(]*[(]reason=([0-9]+)/\1:\2/' | tr '\n' ' ')
@@ -34,5 +42,6 @@ for n in 1 2 3 4 5; do echo B64l$n-START; base64 -b 100 -i $OUT/l$n.jpg; echo B6
 echo ===== RESULTS
 echo PATCH $PATCHCHECK
 echo $SUMMARY
+echo -e "$SAMPLES"
 echo "--- MVSLOG file"; cat "$(xcrun simctl get_app_container $UDID com.munfordvillesports.app data)/Documents/mvs.log" | cut -c1-900
 exit 0
