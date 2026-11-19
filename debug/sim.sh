@@ -13,7 +13,6 @@ xcrun simctl bootstatus $UDID -b
 xcrun simctl install $UDID $APP
 brew install ios-webkit-debug-proxy > /dev/null 2>&1
 SOCK=$(lsof -aUc launchd_sim 2>/dev/null | grep 'com.apple.webinspectord_sim.socket' | head -1 | awk '{print $NF}')
-echo SOCK $SOCK
 ios_webkit_debug_proxy -s unix:$SOCK > $OUT/iwdp.txt 2>&1 &
 sleep 5
 xcrun simctl launch --console-pty $UDID com.munfordvillesports.app > $OUT/stdout1.txt 2>&1 &
@@ -26,10 +25,17 @@ xcrun simctl launch --console-pty $UDID com.munfordvillesports.app > $OUT/stdout
 sleep 15
 node debug/inspect.js run2 noreload
 xcrun simctl io $UDID screenshot $OUT/launch2.png
+set +x
+sips -Z 520 -s format jpeg -s formatOptions 55 $OUT/launch1.png --out $OUT/s1.jpg > /dev/null
+sips -Z 520 -s format jpeg -s formatOptions 55 $OUT/launch2.png --out $OUT/s2.jpg > /dev/null
+echo B64S1-START
+base64 -b 100 -i $OUT/s1.jpg
+echo B64S1-END
+echo B64S2-START
+base64 -b 100 -i $OUT/s2.jpg
+echo B64S2-END
 echo ===== STDOUT1
-cut -c1-300 $OUT/stdout1.txt | head -150
+cut -c1-300 $OUT/stdout1.txt | head -60
 echo ===== STDOUT2
-cut -c1-300 $OUT/stdout2.txt | head -150
-echo ===== IWDP
-tail -20 $OUT/iwdp.txt
+cut -c1-300 $OUT/stdout2.txt | head -60
 exit 0
