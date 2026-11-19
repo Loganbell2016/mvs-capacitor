@@ -17,8 +17,11 @@ sleep 5
 xcrun simctl launch $UDID com.munfordvillesports.app
 sleep 12
 node debug/inspect.js run1 > $OUT/insp.txt 2>&1
+xcrun simctl io $UDID screenshot $OUT/a1.png
+sips -Z 520 -s format jpeg -s formatOptions 50 $OUT/a1.png --out $OUT/a1.jpg > /dev/null
+echo B64a1-START
+base64 -b 100 -i $OUT/a1.jpg
+echo B64a1-END
 echo ===== INSPECTOR
-grep -v ' REQ ' $OUT/insp.txt | cut -c1-500 | head -150
-echo ===== REQUESTS
-grep ' REQ ' $OUT/insp.txt | cut -c1-220 | head -120
+grep -v 'TARGET' $OUT/insp.txt | cut -c1-500 | head -80
 exit 0
