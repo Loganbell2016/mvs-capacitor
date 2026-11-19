@@ -20,7 +20,7 @@ SIMCTL_CHILD_MVS_FIX="$F" xcrun simctl launch --stderr=$OUT/err$n.txt $UDID com.
 sleep 20
 xcrun simctl io $UDID screenshot $OUT/l$n.png > /dev/null 2>&1
 sips -Z 360 -s format jpeg -s formatOptions 45 $OUT/l$n.png --out $OUT/l$n.jpg > /dev/null
-FR=$(xcrun simctl spawn $UDID log show --last 22s --style compact --predicate 'subsystem == "com.apple.WebKit"' 2>/dev/null | grep -oE 'LayerTree: [A-Za-z]+[^(]{0,80}\(reason=[0-9]+' | sed -E 's/LayerTree: ([A-Za-z]+)[^(]*reason=([0-9]+)/\1:\2/' | tr '\n' ' ')
+FR=$(xcrun simctl spawn $UDID log show --last 22s --style compact --predicate 'subsystem == "com.apple.WebKit"' 2>/dev/null | grep -oE 'LayerTree: [A-Za-z]+[^(]{0,80}\(reason=[0-9]+' | sed -E 's/LayerTree: ([A-Za-z]+)[^(]*[(]reason=([0-9]+)/\1:\2/' | tr '\n' ' ')
 SUMMARY="$SUMMARY | L$n bytes=$(wc -c < $OUT/l$n.jpg) $FR"
 xcrun simctl terminate $UDID com.munfordvillesports.app
 sleep 3
@@ -29,5 +29,5 @@ for n in 1 2 3 4 5; do echo B64l$n-START; base64 -b 100 -i $OUT/l$n.jpg; echo B6
 echo ===== RESULTS
 echo PATCH $PATCHCHECK
 echo $SUMMARY
-for n in 1 2 3 4 5; do echo "--- L$n fix=${FIXES[$n]}"; grep -a MVSLOG $OUT/err$n.txt | cut -c1-700; done
+echo "--- MVSLOG file"; cat "$(xcrun simctl get_app_container $UDID com.munfordvillesports.app data)/Documents/mvs.log" | cut -c1-900
 exit 0
