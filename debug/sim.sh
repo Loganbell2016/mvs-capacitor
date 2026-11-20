@@ -3,7 +3,7 @@ mkdir -p $OUT
 npm install > /dev/null 2>&1
 npx cap add ios > /dev/null 2>&1
 npx cap sync ios > /dev/null 2>&1
-cat ios-patch/MVSPatch.swift >> ios/App/App/AppDelegate.swift
+cat ios-patch/MVSApp.swift >> ios/App/App/AppDelegate.swift
 sed -i '' 's/customClass="CAPBridgeViewController" customModule="Capacitor"/customClass="MVSViewController" customModule="App" customModuleProvider="target"/' ios/App/App/Base.lproj/Main.storyboard
 sed -i '' 's/rootViewController = CAPBridgeViewController()/rootViewController = MVSViewController()/' ios/App/App/SceneDelegate.swift
 /usr/libexec/PlistBuddy -c "Delete :UIApplicationSceneManifest:UISceneConfigurations:UIWindowSceneSessionRoleApplication:0:UISceneStoryboardFile" ios/App/App/Info.plist || true
@@ -20,7 +20,7 @@ SAMPLES=''
 FIXES=(x none none none none none)
 CLEARS=(x none none none none none)
 OBS=(x 0 0 0 0 0)
-UAS=(x 0 1 0 1 0)
+UAS=(x 0 0 0 0 0)
 for n in 1 2 3 4 5; do
 F=${FIXES[$n]}; [ "$F" = none ] && F=""
 SIMCTL_CHILD_MVS_UA="${UAS[$n]}" SIMCTL_CHILD_MVS_COOKIEOBS="${OBS[$n]}" SIMCTL_CHILD_MVS_CLEAR="${CLEARS[$n]}" SIMCTL_CHILD_MVS_FIX="$F" xcrun simctl launch --stderr=$OUT/err$n.txt $UDID com.munfordvillesports.app > /dev/null
