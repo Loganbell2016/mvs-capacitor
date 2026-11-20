@@ -13,6 +13,8 @@ class MVSViewController: CAPBridgeViewController {
         c.limitsNavigationsToAppBoundDomains = instanceConfiguration.limitsNavigationsToAppBoundDomains
         if #available(iOS 15.4, *) { c.preferences.isElementFullscreenEnabled = true }
         c.defaultWebpagePreferences.preferredContentMode = .mobile
+        // Lets the Wix site tell it is running inside the app (e.g. to show email/password sign-in only).
+        c.applicationNameForUserAgent = "Mobile/15E148 MunfordvilleSportsApp/1.0"
         return c
     }
     // Keep the web page inside the phone's usable area (below the clock, above the home bar),
