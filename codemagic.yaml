@@ -38,6 +38,15 @@ workflows:
           /usr/libexec/PlistBuddy -c "Delete :UIApplicationSceneManifest:UISceneConfigurations:UIWindowSceneSessionRoleApplication:0:UISceneStoryboardFile" ios/App/App/Info.plist || true
           /usr/libexec/PlistBuddy -c "Delete :UIMainStoryboardFile" ios/App/App/Info.plist || true
           grep -c MVSViewController ios/App/App/SceneDelegate.swift
+      - name: Set app icon
+        script: |
+          ICON=ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png
+          sips -s format png --cropToHeightWidth 948 948 ios-patch/514412664_1296806425781103_2023976538211842074_n.jpg --out /tmp/i1.png
+          sips -z 880 880 /tmp/i1.png --out /tmp/i2.png
+          sips --padToHeightWidth 1024 1024 --padColor FFFFFF /tmp/i2.png --out /tmp/i3.png
+          sips -s format jpeg -s formatOptions 100 /tmp/i3.png --out /tmp/i4.jpg
+          sips -s format png /tmp/i4.jpg --out "$ICON"
+          sips -g pixelWidth -g pixelHeight -g hasAlpha "$ICON"
       - name: Fetch and use code signing files
         script: |
           xcode-project use-profiles
