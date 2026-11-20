@@ -15,6 +15,24 @@ class MVSViewController: CAPBridgeViewController {
         c.defaultWebpagePreferences.preferredContentMode = .mobile
         return c
     }
+    // Keep the web page inside the phone's usable area (below the clock, above the home bar),
+    // so Wix popups like checkout can't slide under the status bar.
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        guard let wv = webView, view === wv else { return }
+        let container = UIView(frame: wv.frame)
+        container.backgroundColor = .white
+        view = container
+        container.addSubview(wv)
+        wv.translatesAutoresizingMaskIntoConstraints = false
+        let g = container.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            wv.topAnchor.constraint(equalTo: g.topAnchor),
+            wv.bottomAnchor.constraint(equalTo: g.bottomAnchor),
+            wv.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            wv.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+        ])
+    }
     // Remove Capacitor's injected bridge/cordova scripts (they freeze the Wix page) and add our safe-area fixes.
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
