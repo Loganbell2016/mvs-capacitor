@@ -1,5 +1,5 @@
 workflows:
-  ios-debug-sim: {name: Simulator debug, max_build_duration: 30, environment: {xcode: latest}, scripts: [{name: Run in simulator, script: "bash debug/sim.sh"}], artifacts: [out/launch1.png, out/launch2.png, out/stdout1.txt, out/stdout2.txt]}
+  ios-debug-sim: {name: Simulator debug, max_build_duration: 30, environment: {xcode: "27.2"}, scripts: [{name: Run in simulator, script: "bash debug/sim.sh"}], artifacts: [out/launch1.png, out/launch2.png, out/stdout1.txt, out/stdout2.txt]}
   ios-distribution:
     name: Munfordville Sports iOS
     max_build_duration: 60
@@ -11,7 +11,7 @@ workflows:
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.munfordvillesports.app"
         APP_STORE_APP_ID: "6836411892"
-      xcode: latest
+      xcode: "27.2"
       cocoapods: default
       ios_signing: {distribution_type: app_store, bundle_identifier: com.munfordvillesports.app}
     scripts:
